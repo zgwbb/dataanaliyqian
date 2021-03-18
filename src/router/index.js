@@ -27,7 +27,7 @@ export const constantRoutes = [
         path: "dashboard",
         name: "Dashboard",
         component: () => import("@/views/dashboard/index"),
-        meta: { title: "赛事管理", icon: "dashboard" }
+        meta: { title: "好评度词雷达图", icon: "dashboard" }
       }
     ]
   },
@@ -62,7 +62,7 @@ export const constantRoutes = [
         path: "index",
         name: "Form",
         component: () => import("@/views/school/index"),
-        meta: { title: "赛事发布", icon: "form" }
+        meta: { title: "畅销榜销售前10的出版社叠图", icon: "form" }
       }
     ]
   },

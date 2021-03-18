@@ -8,6 +8,7 @@ export function login(data) {
   });
 }
 
+
 export function getInfo() {
   return request({
     url: "/protected",
@@ -36,4 +37,11 @@ export function changePassword(data) {
     method: "post",
     data
   });
+}
+export default{
+  async SportsQuery(params){
+    return request.post("sportsQuery",{
+      params:params
+    })
+  },
 }

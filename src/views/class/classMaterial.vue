@@ -1,82 +1,99 @@
 <template>
-  <div class="app-container">
     <el-row>
-      <el-col :span="8"></el-col>
-      <el-col :span="13"><upload-excel-component :on-success="handleSuccess" :before-upload="beforeUpload" /></el-col> 
-    </el-row>
-    <el-row>
-      <el-col :span="12"></el-col>
-      <el-col :span="5"><el-button type="primary" @click.native.prevent="handleup">确认上传</el-button></el-col>
-    </el-row>
-    <el-table :data="tableData" border highlight-current-row style="width: 100%;margin-top:20px;">
-      <el-table-column v-for="item of tableHeader" :key="item" :prop="item" :label="item" />
-    </el-table>
-  </div>
+  <el-col :span="8"><div class="grid-content bg-purple"></div></el-col>
+  <el-col :span="16"> <div id="myChart" :style="{width: '600px', height: '600px'}"></div></div></el-col>
+ 
+</el-row>  
 </template>
 
 <script>
-import UploadExcelComponent from '@/components/UploadExecl/index'
-import { examArrangement } from '../../api/user'
+import { mapGetters } from "vuex";
+import {Xingrcibitu}  from   "../../api/user"
+
 export default {
-  name: 'UploadExcel',
-  components: { UploadExcelComponent },
-  data() {
-    return {
-      tableData: [],
-      tableHeader: []
-    }
+  name: "Dashboard",
+  computed: {
+    ...mapGetters(["name"])
   },
-  methods: {
-    beforeUpload(file) {
-      const isLt1M = file.size / 1024 / 1024 < 1
-      if (isLt1M) {
-        return true
-      }
-      this.$message({
-        message: 'Please do not upload files larger than 1m in size.',
-        type: 'warning'
-      })
-      return false
-    },
-    handleSuccess({ results, header }) {
-      this.tableData = results
-      this.tableHeader = header
-      
-      
-    },
-    handleup(){
-      if (this.tableData == ''){
-        alert("未上传excel数据")
-      }
-      else{
-        //alert(this.tableData[1]['姓名'])
-        let list = []
-        for (let item of this.tableData){
-          //解决空值出现undefined问题
-          var translator = (item.备注==undefined ?"":item.备注);
-          var translator1 = (item.编号==undefined ?"":item.编号);
-          var translator2 = (item.姓名==undefined ?"":item.姓名);
-          var translator3 = (item.性别==undefined ?"":item.性别);
-          var translator4 = (item.组别==undefined ?"":item.组别);
-          var translator5 = (item.单位==undefined ?"":item.单位);
-          var translator6 = (item.项目==undefined ?"":item.项目);
-          var translator7 = (item.场次==undefined ?"":item.场次);
-          var translator8 = (item.分组==undefined ?"":item.分组);
-          var translator9 = (item.序号==undefined ?"":item.序号);
-          var translator10 = (item.比赛时间==undefined ?"":item.比赛时间);
-          var translator11 = (item.赛次==undefined ?"":item.赛次);
-         console.log(translator)
-          list.push({"id": translator1,"name":translator2,"sex":translator3,"group":translator4,"unit":translator5,
-          "project":translator6,"session":translator7,"divideGroup":translator8,"number":translator9,"time":translator10,
-          "remark":translator,"games":translator11})
+  mounted(){
+    this.drawLine();
+  },
+   methods: {
+    async drawLine(){
+        // 基于准备好的dom，初始化echarts实例
+        let myChart = this.$echarts.init(document.getElementById('myChart'))
+        let data1 = await this.$api.Xingrcibitu()
+        // 绘制图表
+        myChart.setOption({
+          backgroundColor: '#2c343c',
+
+    title: {
+        text: '形容词占比图',
+        left: 'center',
+        top: 20,
+        textStyle: {
+            color: '#ccc'
         }
-        
-        let ArrangeIn = {"ArrangeIn":list}
-        examArrangement(ArrangeIn)
-        console.log(ArrangeIn)
-        alert("成功")
-      }
+    },
+
+    tooltip: {
+        trigger: 'item'
+    },
+
+    visualMap: {
+        show: false,
+        min: 80,
+        max: 600,
+        inRange: {
+            colorLightness: [0, 1]
+        }
+    },
+    series: [
+        {
+            name: '形容词',
+            type: 'pie',
+            radius: '55%',
+            center: ['50%', '50%'],
+            data: data1.sort(function (a, b) { return a.value - b.value; }),
+            roseType: 'radius',
+            label: {
+                color: 'rgba(255, 255, 255, 0.3)'
+            },
+            labelLine: {
+                lineStyle: {
+                    color: 'rgba(255, 255, 255, 0.3)'
+                },
+                smooth: 0.2,
+                length: 10,
+                length2: 20
+            },
+            itemStyle: {
+                shadowBlur: 10,
+                    shadowOffsetX: 0,
+                    shadowColor: 'rgba(210,180,140, 0.5)'
+            },
+
+            animationType: 'scale',
+            animationEasing: 'elasticOut',
+            animationDelay: function (idx) {
+                return Math.random() * 200;
+            }
+        }
+    ]
+        });
     }
   }
-}
+};
 </script>
+
+<style lang="scss" scoped>
+.dashboard {
+  &-container {
+    margin: 30px;
+  }
+  &-text {
+    font-size: 30px;
+    line-height: 46px;
+  }
+}
+</style>
